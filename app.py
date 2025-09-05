@@ -32,8 +32,10 @@ def register():
                 cur = conn.cursor()
                 cur.execute('INSERT INTO users(username, password_hash) VALUES(?, ?)', (username, password_hash))
                 conn.commit()
+        except sqlite3.IntegrityError:
+            return render_template('register.html', alert='Username already exists')
         except sqlite3.Error as e:
-            return render_template('register.html', alert=e)
+            return render_template('register.html', alert=f'Something went wrong: {e}')
         
         return redirect('/login')
     else:
@@ -54,7 +56,7 @@ def login():
         if not password:
             return render_template('login.html', alert='Missing password')
         
-        rows = query('SELECT * FROM users WHERE username = ?', (username))
+        rows = query('SELECT * FROM users WHERE username = ?', username)
         
         if len(rows) != 1 or not check_password_hash(rows[0]['password_hash'], password):
             return render_template('login.html', alert='Invalid username and/or password')
@@ -72,11 +74,11 @@ def logout():
     return redirect('/')
 
 # Function for querying data from the database
-def query(query, *args):
+def query(sql, *args):
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
-    cur.execute(query, args)
+    cur.execute(sql, args)
     rows = cur.fetchall()
     conn.close()
     return rows

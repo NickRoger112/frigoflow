@@ -18,9 +18,11 @@
 
     <main>
 
+        {% if alert %}
         <div class="alert alert-danger" role="alert">
             {{ alert }}
         </div>
+        {% endif %}
 
         {% block main %}{% endblock %}
     </main>
