@@ -7,19 +7,39 @@
     <title>{% block title %}{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
 
 <body>
     <header>
-        <nav>
-            <!-- TODO: Implement navigation -->
+        <nav class="container navbar navbar-expand-sm navbar-light bg-light">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">KeepFresh</a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="#">Products</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Recipes</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </nav>
+
     </header>
 
-    <main>
+    <main class="container">
 
         {% if alert %}
-        <div class="alert alert-danger" role="alert">
+        <div class="alert alert-danger m-3" role="alert">
             {{ alert }}
         </div>
         {% endif %}
