@@ -4,8 +4,6 @@ import sqlite3
 from helpers import login_required, query
 from datetime import datetime, date
 
-# TODO: Change alerts to use flash
-
 app = Flask(__name__)
 app.secret_key = 'mysecret'
 
@@ -25,16 +23,20 @@ def add():
         notes = request.form.get('notes')
         
         if not item_name:
-            return render_template('index.html', alert='Missing item name')
+            flash('Missing item name.', 'danger')
+            return redirect(url_for('index'))
         if not expiration_date_str:
-            return render_template('index.html', alert='Missing expiration date')
+            flash('Missing expiration date.', 'danger')
+            return redirect(url_for('index'))
 
         try:
             expiration_date = datetime.strptime(expiration_date_str, '%Y-%m-%d').date()
             if expiration_date < date.today():
-                return render_template('index.html', alert='Expiration date must be in future')
+                flash('Expiration date must be in the future.', 'danger')
+                return redirect(url_for('index'))
         except ValueError:
-            return render_template('index.html', alert='Invalid date format')
+            flash('Invalid date format.', 'danger')
+            return redirect(url_for('index'))
         
         try:
             with sqlite3.connect('database.db') as conn:
@@ -42,8 +44,10 @@ def add():
                 cur.execute('INSERT INTO items(name, expiration_date, notes, user_id) VALUES(?, ?, ?, ?)', (item_name, expiration_date_str, notes, session['user_id']))
                 conn.commit()
         except sqlite3.Error:
-            return render_template('index.html', alert='Failed to add item')
+            flash('Failed to add item.', 'danger')
+            return redirect(url_for('index'))
         
+    flash(f'Added {item_name} to items!', 'success')
     return redirect(url_for('index'))
     
 # Delete an item from the database
@@ -53,7 +57,8 @@ def delete(item_id):
     rows = query('SELECT * FROM items WHERE id = ? AND user_id = ?', item_id, session['user_id'])
     
     if len(rows) != 1:
-        return render_template('index.html', alert='Couldn\'t delete item')
+        flash('Couldn\'t delete item.', 'danger')
+        return redirect(url_for('index'))
 
     try:
         with sqlite3.connect('database.db') as conn:
@@ -61,8 +66,10 @@ def delete(item_id):
             cur.execute('DELETE FROM items WHERE id = ? AND user_id = ?', (item_id, session['user_id']))
             conn.commit()
     except sqlite3.Error:
-        return render_template('index.html', alert='Couldn\'t delete item')
+        flash('Couldnt\'t delete item.', 'danger')
+        return redirect(url_for('index'))
         
+    flash('Successfuly deleted item!', 'success')
     return redirect(url_for('index'))
 
 # Edit an existing item in database
@@ -75,16 +82,20 @@ def edit(item_id):
         notes = request.form.get('notes')
         
         if not item_name:
-            return render_template('index.html', alert='Missing item name')
+            flash('Missing item name.', 'danger')
+            return redirect(url_for('index'))
         if not expiration_date_str:
-            return render_template('index.html', alert='Missing expiration date')
+            flash('Missing expiration date.', 'danger')
+            return redirect(url_for('index'))
 
         try:
             expiration_date = datetime.strptime(expiration_date_str, '%Y-%m-%d').date()
             if expiration_date < date.today():
-                return render_template('index.html', alert='Expiration date must be in future')
+                flash('Expiration date must be in the future.', 'danger')
+                return redirect(url_for('index'))
         except ValueError:
-            return render_template('index.html', alert='Invalid date format')
+            flash('Invalid date format.', 'danger')
+            return redirect(url_for('index'))
         
         try:
             with sqlite3.connect('database.db') as conn:
@@ -92,8 +103,10 @@ def edit(item_id):
                 cur.execute("UPDATE items SET name = ?, expiration_date = ?, notes = ? WHERE id = ? AND user_id = ?", (item_name, expiration_date_str, notes, item_id, session['user_id']))
                 conn.commit()
         except sqlite3.Error:
-            return render_template('index.html', alert='Failed to update item')
+            flash('Failed to update item.', 'danger')
+            return redirect(url_for('index'))
         
+        flash('Successfuly changed item.', 'success')
         return redirect(url_for('index'))
     
     return redirect(url_for('index'))
@@ -109,11 +122,14 @@ def register():
         confirmation = request.form.get('confirmation')
         
         if not username:
-            return render_template('register.html', alert='Missing username')
+            flash('Missing username.', 'danger')
+            return redirect(url_for('register'))
         if not password:
-            return render_template('register.html', alert='Missing password')
+            flash('Missing password.', 'danger')
+            return redirect(url_for('register'))
         if not password == confirmation:
-            return render_template('register.html', alert='Passwords don\'t match')
+            flash('Passwords don\'t match.', 'danger')
+            return redirect(url_for('register'))
         
         password_hash = generate_password_hash(password)
         
@@ -123,37 +139,40 @@ def register():
                 cur.execute('INSERT INTO users(username, password_hash) VALUES(?, ?)', (username, password_hash))
                 conn.commit()
         except sqlite3.IntegrityError:
-            return render_template('register.html', alert='Username already exists')
+            flash('Username already exists.', 'danger')
+            return redirect(url_for('register'))
         except sqlite3.Error as e:
-            return render_template('register.html', alert=f'Something went wrong: {e}')
+            flash(f'Something went wrong {e}.', 'danger')
+            return redirect(url_for('register'))
         
-        return redirect('/login')
+        return redirect(url_for('login'))
     else:
         return render_template('register.html')
     
 # Log the user in, and redirect to homepage
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-
-    session.clear()
-    
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
         
         if not username:
-            return render_template('login.html', alert='Missing username')
+            flash('Missing username.', 'danger')
+            return redirect(url_for('login'))
         if not password:
-            return render_template('login.html', alert='Missing password')
+            flash('Missing password.', 'danger')
+            return redirect(url_for('login'))
         
         rows = query('SELECT * FROM users WHERE username = ?', username)
         
         if len(rows) != 1 or not check_password_hash(rows[0]['password_hash'], password):
-            return render_template('login.html', alert='Invalid username and/or password')
+            flash('Invalid username and/on password.', 'danger')
+            return redirect(url_for('login'))
             
+        session.clear()
         session['user_id'] = rows[0]['id']
         
-        return redirect('/')
+        return redirect(url_for('index'))
     else:
         return render_template('login.html')
 
@@ -162,7 +181,7 @@ def login():
 @login_required
 def logout():
     session.clear()
-    return redirect('/')
+    return redirect(url_for('login'))
 
 if __name__ == '__main__':
     app.run(debug=True, use_reloader=True)

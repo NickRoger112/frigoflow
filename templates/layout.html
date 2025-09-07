@@ -15,7 +15,7 @@
     <header>
         <nav class="container navbar navbar-expand-sm navbar-light bg-light mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" href="#">KeepFresh</a>
+                <a class="navbar-brand" href="/">KeepFresh</a>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,12 +51,16 @@
 
     <main class="container">
 
-        {% if alert %}
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            {{ alert }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        {% endif %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
         {% block main %}{% endblock %}
     </main>
