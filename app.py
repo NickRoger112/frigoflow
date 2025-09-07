@@ -1,12 +1,14 @@
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 import sqlite3
+from helpers import login_required, query
 
 app = Flask(__name__)
 app.secret_key = 'mysecret'
 
 # Main page, can't visit without logging in
 @app.route('/')
+@login_required
 def index():
     return render_template("index.html")
 
@@ -69,19 +71,10 @@ def login():
 
 # Log the user out, and redirect to homepage
 @app.route('/logout')
+@login_required
 def logout():
     session.clear()
     return redirect('/')
-
-# Function for querying data from the database
-def query(sql, *args):
-    conn = sqlite3.connect('database.db')
-    conn.row_factory = sqlite3.Row
-    cur = conn.cursor()
-    cur.execute(sql, args)
-    rows = cur.fetchall()
-    conn.close()
-    return rows
 
 if __name__ == '__main__':
     app.run(debug=True)
