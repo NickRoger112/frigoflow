@@ -12,7 +12,13 @@ app.secret_key = 'mysecret'
 # Main page, can't visit without logging in
 @app.route('/', methods=['GET', 'POST'])
 @login_required
-def index():
+def index():     
+    rows = query('SELECT id, name, expiration_date, notes FROM items WHERE user_id = ?', session['user_id'])
+    return render_template("index.html", items=rows)
+
+@app.route('/add', methods=['GET', 'POST'])
+@login_required
+def add():
     if request.method == 'POST':
         item_name = request.form.get('item-name')
         expiration_date_str = request.form.get('expiration-date')
@@ -37,14 +43,13 @@ def index():
                 conn.commit()
         except sqlite3.Error:
             return render_template('index.html', alert='Failed to add item')
-            
-    rows = query('SELECT id, name, expiration_date, notes FROM items WHERE user_id = ?', session['user_id'])
-    return render_template("index.html", items=rows)
-
+        
+    return redirect(url_for('index'))
+    
 # Delete an item from the database
 @app.route('/delete/<int:item_id>')
 @login_required
-def delete_item(item_id):
+def delete(item_id):
     rows = query('SELECT * FROM items WHERE id = ? AND user_id = ?', item_id, session['user_id'])
     
     if len(rows) != 1:
@@ -61,9 +66,9 @@ def delete_item(item_id):
     return redirect(url_for('index'))
 
 # Edit an existing item in database
-@app.route('/edit_item/<int:item_id>', methods=['GET', 'POST'])
+@app.route('/edit/<int:item_id>', methods=['GET', 'POST'])
 @login_required
-def edit_item(item_id):
+def edit(item_id):
     if request.method == 'POST':
         item_name = request.form.get('item_name')
         expiration_date_str = request.form.get('expiration_date')

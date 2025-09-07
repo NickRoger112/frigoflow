@@ -13,7 +13,7 @@
             <a href="#" class="card-link" data-bs-toggle="modal" data-bs-target="#editItemModal"
                 data-item-id="{{ item.id }}" data-item-name="{{ item.name }}"
                 data-item-date="{{ item.expiration_date }}" data-item-notes="{{ item.notes }}">Edit</a>
-            <a href="{{ url_for('delete_item', item_id=item.id) }}" class="card-link">Delete</a>
+            <a href="{{ url_for('delete', item_id=item.id) }}" class="card-link">Delete</a>
         </div>
     </div>
     {% endfor %}
@@ -35,7 +35,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <form method="post">
+                    <form method="post" action='/add'>
                         <div class="mb-3">
                             <label for="item-name" class="form-label">Item name</label>
                             <input type="text" class="form-control" id="item-name" name="item-name">
@@ -99,7 +99,7 @@
             
             var form = editModal.querySelector('#editItemForm')
 
-            form.action = '/edit_item/' + itemId;
+            form.action = '/edit/' + itemId;
 
             var modalIdInput = editModal.querySelector('#edit-item-id');
             var modalNameInput = editModal.querySelector('#edit-item-name');
