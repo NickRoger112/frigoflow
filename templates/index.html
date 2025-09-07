@@ -3,6 +3,114 @@
 {% block title %}Homepage{% endblock %}
 
 {% block main %}
-<a href="/register">Register</a>
-<a href="/logout">Logout</a>
+<section id="item-catalog" class="container d-flex flex-wrap gap-3 w-fit-content">
+    {% for item in items %}
+    <div class="card" style="width: 18rem;">
+        <div class="card-body">
+            <h5 class="card-title">{{ item.name }}</h5>
+            <h6 class="card-subtitle mb-2 text-body-secondary">Expiration: {{ item.expiration_date }}</h6>
+            <p class="card-text">{{ item.notes }}</p>
+            <a href="#" class="card-link" data-bs-toggle="modal" data-bs-target="#editItemModal"
+                data-item-id="{{ item.id }}" data-item-name="{{ item.name }}"
+                data-item-date="{{ item.expiration_date }}" data-item-notes="{{ item.notes }}">Edit</a>
+            <a href="{{ url_for('delete_item', item_id=item.id) }}" class="card-link">Delete</a>
+        </div>
+    </div>
+    {% endfor %}
+</section>
+
+<section id="add-item">
+    <button type="button"
+        class="btn btn-primary position-fixed bottom-0 start-50 translate-middle-x mb-5 rounded-pill add-btn"
+        data-bs-toggle="modal" data-bs-target="#addItemModal">
+        <i class="fa-solid fa-plus"></i>
+    </button>
+
+    <!-- Modal for adding an item -->
+    <div class="modal fade " id="addItemModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="addItemModalLable">Add Item</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post">
+                        <div class="mb-3">
+                            <label for="item-name" class="form-label">Item name</label>
+                            <input type="text" class="form-control" id="item-name" name="item-name">
+                        </div>
+                        <div class="mb-3">
+                            <label for="expiration-date" class="form-label">Expiration date</label>
+                            <input type="date" class="form-control" id="expiration-date" name="expiration-date">
+                        </div>
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Notes</label>
+                            <textarea class="form-control" id="notes" name="notes"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add item</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for editing item -->
+    <div class="modal fade " id="editItemModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="editItemModalLable">Edit Item</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" id="editItemForm">
+                        <input type="hidden" name="item_id" id="edit-item-id">
+                        <div class="mb-3">
+                            <label for="edit-item-name" class="form-label">Item name</label>
+                            <input type="text" class="form-control" id="edit-item-name" name="item_name">
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-expiration-date" class="form-label">Expiration date</label>
+                            <input type="date" class="form-control" id="edit-expiration-date" name="expiration_date">
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-notes" class="form-label">Notes</label>
+                            <textarea class="form-control" id="edit-notes" name="notes"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var editModal = document.getElementById('editItemModal')
+        editModal.addEventListener('show.bs.modal', function () {
+            var button = event.relatedTarget;
+
+            var itemId = button.getAttribute('data-item-id');
+            var itemName = button.getAttribute('data-item-name');
+            var itemDate = button.getAttribute('data-item-date');
+            var itemNotes = button.getAttribute('data-item-notes');
+            
+            var form = editModal.querySelector('#editItemForm')
+
+            form.action = '/edit_item/' + itemId;
+
+            var modalIdInput = editModal.querySelector('#edit-item-id');
+            var modalNameInput = editModal.querySelector('#edit-item-name');
+            var modalDateInput = editModal.querySelector('#edit-expiration-date');
+            var modalNotesInput = editModal.querySelector('#edit-notes');
+
+            modalIdInput.value = itemId;
+            modalNameInput.value = itemName;
+            modalDateInput.value = itemDate;
+            modalNotesInput.value = itemNotes;
+        })
+    })
+</script>
 {% endblock %}

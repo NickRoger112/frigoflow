@@ -32,3 +32,9 @@
   color: #2e7d32;
   font-weight: 500;
 }
+
+/* Add item button */
+.add-btn {
+  width: 60px;
+  height: 60px;
+}
