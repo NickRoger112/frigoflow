@@ -11,8 +11,28 @@ app.secret_key = 'mysecret'
 @app.route('/', methods=['GET', 'POST'])
 @login_required
 def index():     
-    rows = query('SELECT id, name, expiration_date, notes FROM items WHERE user_id = ?', session['user_id'])
-    return render_template("index.html", items=rows)
+    rows = query('SELECT id, name, expiration_date, notes FROM items WHERE user_id = ? ORDER BY expiration_date', session['user_id'])
+    
+    items_with_dates = []
+    
+    today = date.today()
+    
+    for item in rows:
+        expiration_date_obj = datetime.strptime(item['expiration_date'], '%Y-%m-%d').date()
+            
+        days_left = (expiration_date_obj - today).days
+        
+        item_data = {
+            "id": item['id'],
+            "name": item['name'],
+            "expiration_date": item['expiration_date'],
+            "notes": item['notes'],
+            "days_left": days_left
+        }
+        
+        items_with_dates.append(item_data)
+    
+    return render_template("index.html", items=items_with_dates)
 
 @app.route('/add', methods=['GET', 'POST'])
 @login_required

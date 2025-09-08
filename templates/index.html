@@ -5,18 +5,24 @@
 {% block main %}
 <section id="item-catalog" class="container d-flex flex-wrap gap-3 w-fit-content">
     {% for item in items %}
-    <div class="card" style="width: 18rem;">
-        <div class="card-body">
-            <h5 class="card-title">{{ item.name }}</h5>
-            <h6 class="card-subtitle mb-2 text-body-secondary">Expiration: {{ item.expiration_date }}</h6>
-            <p class="card-text">{{ item.notes }}</p>
-            <a href="#" class="card-link" data-bs-toggle="modal" data-bs-target="#editItemModal"
-                data-item-id="{{ item.id }}" data-item-name="{{ item.name }}"
-                data-item-date="{{ item.expiration_date }}" data-item-notes="{{ item.notes }}">Edit</a>
-            <a href="{{ url_for('delete', item_id=item.id) }}" class="card-link">Delete</a>
+        {% set card_class = '' %}
+        {% if item.days_left <= 1 %} 
+            {% set card_class='expired' %} 
+        {% elif item.days_left <=3 %} 
+            {% set card_class='expiring-soon' %} 
+        {% endif %} 
+        <div class="card {{ card_class }}" style="width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title">{{ item.name }}</h5>
+                <h6 class="card-subtitle mb-2 text-body-secondary">Expiration: {{ item.expiration_date }}</h6>
+                <p class="card-text">{{ item.notes }}</p>
+                <a href="#" class="card-link" data-bs-toggle="modal" data-bs-target="#editItemModal"
+                    data-item-id="{{ item.id }}" data-item-name="{{ item.name }}"
+                    data-item-date="{{ item.expiration_date }}" data-item-notes="{{ item.notes }}">Edit</a>
+                <a href="{{ url_for('delete', item_id=item.id) }}" class="card-link">Delete</a>
+            </div>
         </div>
-    </div>
-    {% endfor %}
+        {% endfor %}
 </section>
 
 <section id="add-item">
@@ -96,7 +102,7 @@
             var itemName = button.getAttribute('data-item-name');
             var itemDate = button.getAttribute('data-item-date');
             var itemNotes = button.getAttribute('data-item-notes');
-            
+
             var form = editModal.querySelector('#editItemForm')
 
             form.action = '/edit/' + itemId;
