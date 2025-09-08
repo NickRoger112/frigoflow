@@ -117,6 +117,59 @@
             modalDateInput.value = itemDate;
             modalNotesInput.value = itemNotes;
         })
+
+        // Notifications
+        requestNotificationPermission();
+
+        const itemsString = '{{ items | tojson }}';
+        const items = JSON.parse(itemsString);
+
+        const lastNotificationDate = localStorage.getItem('last_notification_date');
+        const today = new Date().toDateString();
+
+        if (lastNotificationDate !== today) {
+            items.forEach(item => {
+                if (item.days_left <= 2) {
+                    showExpirationNotification(item.name, item.days_left);
+                }
+            })
+            localStorage.setItem('last_notification_date', today)
+        }
     })
+
+    // Request permission for notifications on browser
+    function requestNotificationPermission() {
+        if ('Notification' in window) {
+            Notification.requestPermission().then(permission => {
+                if (permission === 'granted') {
+                    console.log('Notification permission granted.');
+                } else {
+                    console.log('Notification permission denied.');
+                }
+            });
+        } else {
+            console.log('This browser does not support notifications.');
+        }
+    }
+
+    // Display the notifications
+    function showExpirationNotification(itemName, daysLeft) {
+        if (Notification.permission === 'granted') {
+            let notificationBody = '';
+            if (daysLeft === 0) {
+                notificationBody = `${itemName} expires today!`;
+            } else if (daysLeft > 0) {
+                notificationBody = `${itemName} expires in ${daysLeft} day(s).`;
+            } else {
+                notificationBody = `${itemName} has expired.`;
+            }
+
+            new Notification('Virtual Fridge Alert', {
+                body: notificationBody, 
+                icon: 'static/images/logo.png'
+            }) 
+        }
+    }
+
 </script>
 {% endblock %}
