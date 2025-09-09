@@ -1,132 +1,125 @@
 {% extends "layout.html" %}
 
-{% block title %}Homepage{% endblock %}
+{% block title %}My Fridge{% endblock %}
 
 {% block main %}
-<section id="item-catalog" class="container d-flex flex-wrap gap-3 w-fit-content">
+<section id="item-catalog" class="container d-flex flex-wrap gap-4 justify-content-center">
     {% for item in items %}
-        {% set card_class = '' %}
-        {% if item.days_left <= 1 %} 
-            {% set card_class='expired' %} 
-        {% elif item.days_left <=3 %} 
-            {% set card_class='expiring-soon' %} 
-        {% endif %} 
-        <div class="card {{ card_class }}" style="width: 18rem;">
-            <div class="card-body">
+    {% set card_class = '' %}
+    {% if item.days_left <= 1 %} {% set card_class='expired' %} {% elif item.days_left <=3 %} {% set
+        card_class='expiring-soon' %} {% endif %} <div class="card {{ card_class }}" style="width: 18rem;">
+        <div class="card-body">
+            <div>
                 <h5 class="card-title">{{ item.name }}</h5>
-                <h6 class="card-subtitle mb-2 text-body-secondary">Expiration: {{ item.expiration_date }}</h6>
+                <h6 class="card-subtitle mb-2">Expires: {{ item.expiration_date }}</h6>
                 <p class="card-text">{{ item.notes }}</p>
+            </div>
+            <div class="item-buttons">
                 <a href="#" class="card-link" data-bs-toggle="modal" data-bs-target="#editItemModal"
                     data-item-id="{{ item.id }}" data-item-name="{{ item.name }}"
-                    data-item-date="{{ item.expiration_date }}" data-item-notes="{{ item.notes }}">Edit</a>
-                <a href="{{ url_for('delete', item_id=item.id) }}" class="card-link">Delete</a>
+                    data-item-date="{{ item.expiration_date }}" data-item-notes="{{ item.notes }}"><i
+                        class="fa-solid fa-pen-to-square"></i></a>
+                <a href="{{ url_for('delete', item_id=item.id) }}" class="card-link text-danger"><i
+                        class="fa-solid fa-trash"></i></a>
             </div>
+        </div>
         </div>
         {% endfor %}
 </section>
 
 <section id="add-item">
-    <button type="button"
-        class="btn btn-primary position-fixed bottom-0 start-50 translate-middle-x mb-5 rounded-pill add-btn"
-        data-bs-toggle="modal" data-bs-target="#addItemModal">
-        <i class="fa-solid fa-plus"></i>
+    <button type="button" class="btn add-btn rounded-pill" data-bs-toggle="modal" data-bs-target="#addItemModal">
+        <i class="fa-solid fa-plus fa-2x"></i>
     </button>
-
-    <!-- Modal for adding an item -->
-    <div class="modal fade " id="addItemModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="addItemModalLable">Add Item</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form method="post" action='/add'>
-                        <div class="mb-3">
-                            <label for="item-name" class="form-label">Item name</label>
-                            <input type="text" class="form-control" id="item-name" name="item-name">
-                        </div>
-                        <div class="mb-3">
-                            <label for="expiration-date" class="form-label">Expiration date</label>
-                            <input type="date" class="form-control" id="expiration-date" name="expiration-date">
-                        </div>
-                        <div class="mb-3">
-                            <label for="notes" class="form-label">Notes</label>
-                            <textarea class="form-control" id="notes" name="notes"></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Add item</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal for editing item -->
-    <div class="modal fade " id="editItemModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="editItemModalLable">Edit Item</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form method="post" id="editItemForm">
-                        <input type="hidden" name="item_id" id="edit-item-id">
-                        <div class="mb-3">
-                            <label for="edit-item-name" class="form-label">Item name</label>
-                            <input type="text" class="form-control" id="edit-item-name" name="item_name">
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit-expiration-date" class="form-label">Expiration date</label>
-                            <input type="date" class="form-control" id="edit-expiration-date" name="expiration_date">
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit-notes" class="form-label">Notes</label>
-                            <textarea class="form-control" id="edit-notes" name="notes"></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                    </form>
-                </div>
-            </div>
-
-        </div>
-    </div>
 </section>
+
+<!-- Modals for adding and editing items -->
+<div class="modal fade" id="addItemModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="addItemModalLabel">Add a New Item</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action='/add'>
+                    <div class="mb-3 form-group-icon">
+                        <i class="fa-solid fa-tag form-icon"></i>
+                        <input type="text" class="form-control" id="item-name" name="item-name"
+                            placeholder="e.g., Milk, Eggs, Cheese" required>
+                    </div>
+                    <div class="mb-3 form-group-icon">
+                        <i class="fa-solid fa-calendar-day form-icon"></i>
+                        <input type="date" class="form-control" id="expiration-date" name="expiration-date" required>
+                    </div>
+                    <div class="mb-4 form-group-icon">
+                        <i class="fa-solid fa-note-sticky form-icon" style="top: 25%;"></i>
+                        <textarea class="form-control" id="notes" name="notes" rows="3"
+                            placeholder="e.g., Opened on Monday, use for pancakes"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Add to Fridge</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editItemModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="editItemModalLabel">Edit Item</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" id="editItemForm">
+                    <input type="hidden" name="item_id" id="edit-item-id">
+                    <div class="mb-3 form-group-icon">
+                        <i class="fa-solid fa-tag form-icon"></i>
+                        <input type="text" class="form-control" id="edit-item-name" name="item_name"
+                            placeholder="e.g., Milk, Eggs, Cheese" required>
+                    </div>
+                    <div class="mb-3 form-group-icon">
+                        <i class="fa-solid fa-calendar-day form-icon"></i>
+                        <input type="date" class="form-control" id="edit-expiration-date" name="expiration_date"
+                            required>
+                    </div>
+                    <div class="mb-4 form-group-icon">
+                        <i class="fa-solid fa-note-sticky form-icon" style="top: 25%;"></i>
+                        <textarea class="form-control" id="edit-notes" name="notes" rows="3"
+                            placeholder="e.g., Opened on Monday, use for pancakes"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         var editModal = document.getElementById('editItemModal')
-        editModal.addEventListener('show.bs.modal', function () {
+        editModal.addEventListener('show.bs.modal', function (event) {
             var button = event.relatedTarget;
-
             var itemId = button.getAttribute('data-item-id');
             var itemName = button.getAttribute('data-item-name');
             var itemDate = button.getAttribute('data-item-date');
             var itemNotes = button.getAttribute('data-item-notes');
-
-            var form = editModal.querySelector('#editItemForm')
-
+            var form = editModal.querySelector('#editItemForm');
             form.action = '/edit/' + itemId;
-
             var modalIdInput = editModal.querySelector('#edit-item-id');
             var modalNameInput = editModal.querySelector('#edit-item-name');
             var modalDateInput = editModal.querySelector('#edit-expiration-date');
             var modalNotesInput = editModal.querySelector('#edit-notes');
-
             modalIdInput.value = itemId;
             modalNameInput.value = itemName;
             modalDateInput.value = itemDate;
             modalNotesInput.value = itemNotes;
         })
-
-        // Notifications
         requestNotificationPermission();
-
         const itemsString = '{{ items | tojson }}';
         const items = JSON.parse(itemsString);
-
         const lastNotificationDate = localStorage.getItem('last_notification_date');
         const today = new Date().toDateString();
-
         if (lastNotificationDate !== today) {
             items.forEach(item => {
                 if (item.days_left <= 2) {
@@ -136,8 +129,6 @@
             localStorage.setItem('last_notification_date', today)
         }
     })
-
-    // Request permission for notifications on browser
     function requestNotificationPermission() {
         if ('Notification' in window) {
             Notification.requestPermission().then(permission => {
@@ -151,8 +142,6 @@
             console.log('This browser does not support notifications.');
         }
     }
-
-    // Display the notifications
     function showExpirationNotification(itemName, daysLeft) {
         if (Notification.permission === 'granted') {
             let notificationBody = '';
@@ -163,13 +152,11 @@
             } else {
                 notificationBody = `${itemName} has expired.`;
             }
-
-            new Notification('Virtual Fridge Alert', {
-                body: notificationBody, 
+            new Notification('FreshFridge Alert', {
+                body: notificationBody,
                 icon: 'static/images/logo.png'
-            }) 
+            })
         }
     }
-
 </script>
 {% endblock %}

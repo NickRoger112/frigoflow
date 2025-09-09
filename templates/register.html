@@ -3,19 +3,28 @@
 {% block title %}Register{% endblock %}
 
 {% block main %}
-
-<form method="post">
-    <div class="mx-auto" style="max-width: 340px;">
-        <div class="mb-3">
-            <input class="form-control" type="text" autocomplete="off" autofocus name="username" placeholder="Username">
+<div class="auth-wrapper">
+    <div class="auth-form">
+        <div class="auth-form-icon">
+            <i class="fa-solid fa-user-plus"></i>
         </div>
-        <div class="mb-3">
-            <input class="form-control" type="password" name="password" placeholder="Password">
+        <h2>Create Your Account</h2>
+        <form method="post">
+            <div class="mb-3">
+                <input class="form-control" type="text" autocomplete="off" autofocus name="username"
+                    placeholder="Username">
+            </div>
+            <div class="mb-3">
+                <input class="form-control" type="password" name="password" placeholder="Password">
+            </div>
+            <div class="mb-3">
+                <input class="form-control" type="password" name="confirmation" placeholder="Confirm Password">
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Create Account</button>
+        </form>
+        <div class="auth-link">
+            Already have an account? <a href="/login">Log In</a>
         </div>
-        <div class="mb-3">
-            <input class="form-control" type="password" name="confirmation" placeholder="Password (Again)">
-        </div>
-        <button type="submit" class="btn btn-primary">Register</button>
     </div>
-</form>
+</div>
 {% endblock %}
