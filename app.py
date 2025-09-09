@@ -3,6 +3,9 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import sqlite3
 from helpers import login_required, query
 from datetime import datetime, date
+import requests
+import os
+import json
 
 app = Flask(__name__)
 app.secret_key = 'mysecret'
@@ -33,6 +36,55 @@ def index():
         items_with_dates.append(item_data)
     
     return render_template("index.html", items=items_with_dates)
+
+@app.route('/recipes')
+@login_required
+def recipes():
+    rows = query('SELECT name FROM items WHERE user_id = ?', session['user_id'])
+    items = [row['name'] for row in rows]
+    
+    products = ','.join(items).lower()
+    
+    cache_dir = 'cache'
+    os.makedirs(cache_dir, exist_ok=True)
+    
+    cache_file = os.path.join(cache_dir, f'{products}.json')
+    
+    recipes_data = []
+    
+    if os.path.exists(cache_file):
+        with open(cache_file, 'r') as f:
+            try:
+                recipes_data = json.load(f)
+            except json.JSONDecodeError:
+                print("Cache file is corrupted. Fetching from API instead.")
+                os.remove(cache_file)
+                recipes_data = fetch_and_cache_recipes(products, cache_file)    
+    else:
+        recipes_data = fetch_and_cache_recipes(products, cache_file)
+        
+    return render_template("recipes.html", recipes=recipes_data)
+        
+def fetch_and_cache_recipes(products, cache_file):
+    
+    API_KEY = '2010113e25174c91a818ce2c118da0af'
+    params = {
+        'ingredients': products,
+        'apiKey': API_KEY,
+        'minMissingIngredients': 0,
+        'ignorePantry': True
+    }
+
+    response = requests.get('https://api.spoonacular.com/recipes/findByIngredients', params=params)
+    
+    if response.status_code == 200:
+        recipes_data = response.json()
+        with open(cache_file, 'w') as f:
+            json.dump(recipes_data, f)
+        return recipes_data
+    else:
+        print(f'API error: {response.status_code}')
+        return []
 
 @app.route('/add', methods=['GET', 'POST'])
 @login_required
