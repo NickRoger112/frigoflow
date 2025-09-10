@@ -18,17 +18,27 @@
 
 
 <div class="modal fade" id="recipeModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title fs-5" id="recipeModalTitle">Recipe</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <p id="recipe-time"></p>
-                <img id="recipe-image" class="img-fluid mb-3 rounded">
-                <div id="recipe-ingredients"></div>
-                <div id="recipe-instructions"></div>
+            <div class="modal-body" id="recipeModalBody">
+                <div id="recipe-header-content" class="text-center mb-4"></div>
+
+                <div class="row">
+                    <div class="col-md-5">
+                        <h5 class="mb-3">Ingredients</h5>
+                        <ul id="recipe-ingredients-list" class="ingredients-list">
+                        </ul>
+                    </div>
+                    <div class="col-md-7">
+                        <h5 class="mb-3">Instructions</h5>
+                        <ol id="recipe-instructions-list" class="instructions-list">
+                        </ol>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -63,46 +73,45 @@
         });
 
         function populateModal(data) {
-            var modalBody = recipeModal.querySelector('.modal-body');
-            modalBody.innerHTML = '';
+            recipeModal.querySelector('#recipeModalTitle').textContent = data.title;
 
-            var modalTitle = recipeModal.querySelector('.modal-title');
-            modalTitle.textContent = data.title;
+            const headerContent = recipeModal.querySelector('#recipe-header-content');
+            headerContent.innerHTML = `
+                <img src="${data.image}" class="img-fluid mb-3 rounded recipe-image">
+                <div class="recipe-info-pills">
+                    <span class="info-pill"><i class="fa-regular fa-clock"></i> ${data.readyInMinutes} min</span>
+                    <span class="info-pill"><i class="fa-solid fa-utensils"</i> Serves ${data.servings}</span>
+                </div>
+            `;
 
-            var recipeTime = document.createElement('p');
-            recipeTime.textContent = `Ready in: ${data.readyInMinutes} minutes`;
-            modalBody.appendChild(recipeTime);
-
-            var recipeImage = document.createElement('img');
-            recipeImage.src = data.image;
-            recipeImage.className = 'img-fluid mb-3 rounded';
-            modalBody.appendChild(recipeImage);
-
-            var ingredientsHeading = document.createElement('h5');
-            ingredientsHeading.textContent = 'Ingredients:';
-            modalBody.appendChild(ingredientsHeading);
-
-            var ingredientsList = document.createElement('ul');
+            const ingredientsList = recipeModal.querySelector('#recipe-ingredients-list');
+            ingredientsList.innerHTML = '';
             if (data.extendedIngredients) {
                 data.extendedIngredients.forEach(ingredient => {
-                    var listItem = document.createElement('li');
+                    const listItem = document.createElement('li');
                     listItem.textContent = ingredient.original;
                     ingredientsList.appendChild(listItem);
                 });
             }
-            modalBody.appendChild(ingredientsList);
 
-            var instructionsHeading = document.createElement('h5');
-            instructionsHeading.textContent = 'Instructions:';
-            modalBody.appendChild(instructionsHeading);
+            const instructionsList = recipeModal.querySelector('#recipe-instructions-list');
+            instructionsList.innerHTML = '';
 
-            var instructionsText = document.createElement('p');
-            if (data.instructions) {
-                instructionsText.innerHTML = data.instructions;
+            if (data.analyzedInstructions && data.analyzedInstructions.length > 0) {
+                data.analyzedInstructions[0].steps.forEach(step => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = step.step;
+                    instructionsList.appendChild(listItem);
+                });
+            } else if (data.instructions) {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = data.instructions;
+                instructionsList.appendChild(listItem);
             } else {
-                instructionsText.innerHTML = 'No instructions available.';
+                const listItem = document.createElement('li');
+                listItem.textContent = 'No instructions available.';
+                instructionsList.appendChild(listItem);
             }
-            modalBody.appendChild(instructionsText);
         }
     });
 </script>
