@@ -1,6 +1,7 @@
 from flask import session, redirect, url_for
-import sqlite3
+import mysql.connector
 import functools
+import os
 
 # Add the login required decorator
 def login_required(view):
@@ -11,12 +12,28 @@ def login_required(view):
         return view(**kwargs)
     return wrapped_view
 
-# Function for querying data from the database
+def get_db_connection():
+    conn = mysql.connector.connect(
+        host=os.getenv('DB_HOST'),
+        user=os.getenv('DB_USER'),
+        password=os.getenv('DB_PASSWORD'),
+        database=os.getenv('DB_NAME')
+    )
+    return conn
+
 def query(sql, *args):
-    conn = sqlite3.connect('database.db')
-    conn.row_factory = sqlite3.Row
-    cur = conn.cursor()
+    conn = get_db_connection()
+    cur = conn.cursor(dictionary=True)
     cur.execute(sql, args)
     rows = cur.fetchall()
+    cur.close()
     conn.close()
     return rows
+
+def execute(sql, *args):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(sql, args)
+    conn.commit()
+    cur.close()
+    conn.close()
