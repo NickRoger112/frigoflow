@@ -48,6 +48,8 @@
     document.addEventListener('DOMContentLoaded', function () {
         var recipeModal = document.getElementById('recipeModal');
 
+        const API_KEY = '{{ api_key }}';
+
         recipeModal.addEventListener('show.bs.modal', function () {
             var button = event.relatedTarget;
             var recipeId = button.getAttribute('data-recipe-id')
@@ -60,7 +62,6 @@
                 return;
             }
 
-            const API_KEY = '2010113e25174c91a818ce2c118da0af'
             var apiUrl = `https://api.spoonacular.com/recipes/${recipeId}/information?apiKey=${API_KEY}`;
 
             fetch(apiUrl)

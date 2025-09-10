@@ -1,14 +1,23 @@
 from flask import Flask, redirect, render_template, request, session, url_for, flash
 from werkzeug.security import check_password_hash, generate_password_hash
-import sqlite3
 from helpers import login_required, query
 from datetime import datetime, date
+from dotenv import load_dotenv
 import requests
-import os
+import sqlite3
 import json
+import os
+
+# Load the environment variables
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = 'mysecret'
+app.secret_key = os.getenv('FLASK_SECRET_KEY')
+
+# Get the API key from environment variables
+API_KEY = os.getenv('SPOONACULAR_API_KEY')
+if not API_KEY:
+    raise ValueError("SPOONACULAR_API_KEY environment variable not set.")
 
 # Main page, can't visit without logging in
 @app.route('/', methods=['GET', 'POST'])
@@ -63,11 +72,9 @@ def recipes():
     else:
         recipes_data = fetch_and_cache_recipes(products, cache_file)
         
-    return render_template("recipes.html", recipes=recipes_data)
+    return render_template("recipes.html", recipes=recipes_data, api_key=API_KEY)
         
 def fetch_and_cache_recipes(products, cache_file):
-    
-    API_KEY = '2010113e25174c91a818ce2c118da0af'
     params = {
         'ingredients': products,
         'apiKey': API_KEY,
