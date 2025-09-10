@@ -284,6 +284,78 @@ header.desktop-header {
   text-decoration: underline;
 }
 
+.recipe-image {
+  max-height: 300px;
+  width: 100%;
+  object-fit: cover;
+  border: 1px solid var(--border-color);
+}
+
+.recipe-info-pills {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.info-pill {
+  background-color: #eef2f7;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.info-pill i {
+  color: var(--primary-color);
+}
+
+.ingredients-list {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.ingredients-list li {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.ingredients-list li:last-child {
+  border-bottom: none;
+}
+
+.instructions-list {
+  list-style: none;
+  counter-reset: step-counter;
+  padding-left: 0;
+}
+
+.instructions-list li {
+  counter-increment: step-counter;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  line-height: 1.6;
+}
+
+.instructions-list li::before {
+  content: counter(step-counter);
+  margin-right: 1rem;
+  background-color: var(--primary-color);
+  color: white;
+  font-weight: 600;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
 /* --- Mobile Overrides --- */
 @media (max-width: 766px) {
   .container {
