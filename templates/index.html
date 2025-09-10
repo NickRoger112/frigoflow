@@ -140,7 +140,7 @@
         const today = new Date().toDateString();
         if (lastNotificationDate !== today) {
             items.forEach(item => {
-                if (item.days_left <= 2) {
+                if (item.days_left <= 3) {
                     showExpirationNotification(item.name, item.days_left);
                 }
             })
@@ -170,9 +170,9 @@
             } else {
                 notificationBody = `${itemName} has expired.`;
             }
-            new Notification('FreshFridge Alert', {
+            new Notification('FrigoFlow Alert', {
                 body: notificationBody,
-                icon: 'static/images/logo.png'
+                icon: 'static/images/FrigoFlow-logo.png'
             })
         }
     }
